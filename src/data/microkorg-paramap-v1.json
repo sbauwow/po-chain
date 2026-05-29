@@ -1,0 +1,4367 @@
+{
+  "name": "microKorg verified v2",
+  "source": "Cross-reference: gosub/microkorg-erl (program_decode.erl + program_encode.erl + enums.erl) + eclab/edisyn (KorgMicroKorg.java + KorgMicroKorgVocoder.java). Korg official MIDI Implementation PDF was unreachable from this environment, so PDF citations are absent; all entries reflect erl/edisyn agreement unless noted. | v2 gap-fill (vocoder ch level/pan paired bytes 85..115, OSC1 pad bytes 49/157, reserved tail 198..253)",
+  "params": [
+    {
+      "id": "common.arp-trigger-length",
+      "group": "Common",
+      "label": "Arp trigger pattern length (steps)",
+      "offset": 14,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 0,
+        "widthBits": 3
+      },
+      "notes": "erl + edisyn agree (stored 0-7 = length 1-8; erl decode does Len+1)"
+    },
+    {
+      "id": "common.arp-trigger-pattern",
+      "group": "Arpeggio",
+      "label": "Arp trigger pattern (8 step bitmap)",
+      "offset": 15,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "erl + edisyn agree. Each bit i (0..7) = step i on/off."
+    },
+    {
+      "id": "common.voice-mode",
+      "group": "Common",
+      "label": "Voice mode",
+      "offset": 16,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Single",
+          "Reserved(1)",
+          "Layer/Dual",
+          "Vocoder"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree. erl: 0=single,2=double,3=vocoder. edisyn collapses anything>=2 to Layer. Value 1 is undocumented/unused."
+    },
+    {
+      "id": "common.scale-key",
+      "group": "Common",
+      "label": "Scale key",
+      "offset": 17,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "C",
+          "C#",
+          "D",
+          "D#",
+          "E",
+          "F",
+          "F#",
+          "G",
+          "G#",
+          "A",
+          "A#",
+          "B"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl only (edisyn pins byte 17 to 0, ignoring scale)"
+    },
+    {
+      "id": "common.scale-type",
+      "group": "Common",
+      "label": "Scale type",
+      "offset": 17,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 4,
+        "widthBits": 4
+      },
+      "notes": "erl only. Raw 0-N enum; values not enumerated in erl source (passthrough)."
+    },
+    {
+      "id": "common.split-point",
+      "group": "Common",
+      "label": "Split point (note number)",
+      "offset": 18,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "edisyn pins to 60 (middle C); erl treats as opaque byte. Likely split-point for Split mode."
+    },
+    {
+      "id": "fx.delay-sync",
+      "group": "FX.Delay",
+      "label": "Delay tempo sync",
+      "offset": 19,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.delay-timebase",
+      "group": "FX.Delay",
+      "label": "Delay time base",
+      "offset": 19,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/32",
+          "1/24",
+          "1/16",
+          "1/12",
+          "3/32",
+          "1/8",
+          "1/6",
+          "3/16",
+          "1/4",
+          "1/3",
+          "3/8",
+          "1/2",
+          "2/3",
+          "3/4",
+          "1/1"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.delay-time",
+      "group": "FX.Delay",
+      "label": "Delay time",
+      "offset": 20,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.delay-depth",
+      "group": "FX.Delay",
+      "label": "Delay depth",
+      "offset": 21,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.delay-type",
+      "group": "FX.Delay",
+      "label": "Delay type",
+      "offset": 22,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Stereo",
+          "Cross",
+          "Left/Right"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.mod-lfo-speed",
+      "group": "FX.Mod",
+      "label": "Mod FX LFO speed",
+      "offset": 23,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.mod-depth",
+      "group": "FX.Mod",
+      "label": "Mod FX depth",
+      "offset": 24,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "fx.mod-type",
+      "group": "FX.Mod",
+      "label": "Mod FX type",
+      "offset": 25,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Chorus/Flanger",
+          "Ensemble",
+          "Phaser"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "eq.hi-freq",
+      "group": "EQ",
+      "label": "EQ high frequency",
+      "offset": 26,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1.00kHz",
+          "1.25kHz",
+          "1.50kHz",
+          "1.75kHz",
+          "2.00kHz",
+          "2.25kHz",
+          "2.50kHz",
+          "2.75kHz",
+          "3.00kHz",
+          "3.25kHz",
+          "3.50kHz",
+          "3.75kHz",
+          "4.00kHz",
+          "4.25kHz",
+          "4.50kHz",
+          "4.75kHz",
+          "5.00kHz",
+          "5.25kHz",
+          "5.50kHz",
+          "5.75kHz",
+          "6.00kHz",
+          "7.00kHz",
+          "8.00kHz",
+          "9.00kHz",
+          "10.0kHz",
+          "11.0kHz",
+          "12.0kHz",
+          "14.0kHz",
+          "16.0kHz",
+          "18.0kHz"
+        ]
+      },
+      "notes": "erl + edisyn agree (30 entries, index 0-29)"
+    },
+    {
+      "id": "eq.hi-gain",
+      "group": "EQ",
+      "label": "EQ high gain (dB)",
+      "offset": 27,
+      "kind": {
+        "type": "s8",
+        "min": -12,
+        "max": 12
+      },
+      "notes": "erl + edisyn agree. Raw byte = gain+64."
+    },
+    {
+      "id": "eq.lo-freq",
+      "group": "EQ",
+      "label": "EQ low frequency",
+      "offset": 28,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "40Hz",
+          "50Hz",
+          "60Hz",
+          "80Hz",
+          "100Hz",
+          "120Hz",
+          "140Hz",
+          "160Hz",
+          "180Hz",
+          "200Hz",
+          "220Hz",
+          "240Hz",
+          "260Hz",
+          "280Hz",
+          "300Hz",
+          "320Hz",
+          "340Hz",
+          "360Hz",
+          "380Hz",
+          "400Hz",
+          "420Hz",
+          "440Hz",
+          "460Hz",
+          "480Hz",
+          "500Hz",
+          "600Hz",
+          "700Hz",
+          "800Hz",
+          "900Hz",
+          "1000Hz"
+        ]
+      },
+      "notes": "erl + edisyn agree (30 entries, index 0-29)"
+    },
+    {
+      "id": "eq.lo-gain",
+      "group": "EQ",
+      "label": "EQ low gain (dB)",
+      "offset": 29,
+      "kind": {
+        "type": "s8",
+        "min": -12,
+        "max": 12
+      },
+      "notes": "erl + edisyn agree. Raw byte = gain+64."
+    },
+    {
+      "id": "arp.tempo",
+      "group": "Arpeggio",
+      "label": "Arpeggio tempo (BPM)",
+      "offset": 30,
+      "kind": {
+        "type": "u16-be",
+        "min": 20,
+        "max": 300
+      },
+      "notes": "erl + edisyn agree. Big-endian u16 across bytes 30-31."
+    },
+    {
+      "id": "arp.on",
+      "group": "Arpeggio",
+      "label": "Arpeggio on/off",
+      "offset": 32,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.latch",
+      "group": "Arpeggio",
+      "label": "Arpeggio latch",
+      "offset": 32,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 6
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.target",
+      "group": "Arpeggio",
+      "label": "Arpeggio target",
+      "offset": 32,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Both",
+          "Timbre 1",
+          "Timbre 2"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.keysync",
+      "group": "Arpeggio",
+      "label": "Arpeggio key sync",
+      "offset": 32,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 0
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.type",
+      "group": "Arpeggio",
+      "label": "Arpeggio type",
+      "offset": 33,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Up",
+          "Down",
+          "Alt1",
+          "Alt2",
+          "Random",
+          "Trigger"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl: low nibble. edisyn uses (byte & 7); both compatible for documented 0-5 values."
+    },
+    {
+      "id": "arp.range",
+      "group": "Arpeggio",
+      "label": "Arpeggio range (octaves)",
+      "offset": 33,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 4,
+        "widthBits": 4
+      },
+      "notes": "erl + edisyn agree. erl: range = stored+1 (0-3 \u2192 1-4 octaves). edisyn raw 0-3."
+    },
+    {
+      "id": "arp.gate-time",
+      "group": "Arpeggio",
+      "label": "Arpeggio gate time (%)",
+      "offset": 34,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 100
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.resolution",
+      "group": "Arpeggio",
+      "label": "Arpeggio resolution",
+      "offset": 35,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/24",
+          "1/16",
+          "1/12",
+          "1/8",
+          "1/6",
+          "1/4"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "arp.swing",
+      "group": "Arpeggio",
+      "label": "Arpeggio swing",
+      "offset": 36,
+      "kind": {
+        "type": "s8",
+        "min": -100,
+        "max": 100
+      },
+      "notes": "erl + edisyn agree (signed byte)"
+    },
+    {
+      "id": "common.kbd-octave",
+      "group": "Common",
+      "label": "Keyboard octave",
+      "offset": 37,
+      "kind": {
+        "type": "s8",
+        "min": -3,
+        "max": 3
+      },
+      "notes": "erl + edisyn agree (signed byte; erl: KbdOctave)"
+    },
+    {
+      "id": "timbre1.midi-ch",
+      "group": "Timbre1",
+      "label": "Timbre 1 MIDI channel",
+      "offset": 38,
+      "kind": {
+        "type": "s8",
+        "min": -1,
+        "max": 15
+      },
+      "notes": "erl + edisyn agree. -1 = global."
+    },
+    {
+      "id": "timbre1.assign-mode",
+      "group": "Timbre1",
+      "label": "Timbre 1 voice assign mode",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Mono",
+          "Poly",
+          "Unison"
+        ],
+        "bits": {
+          "offsetBit": 6,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg2-reset",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp EG2 reset",
+      "offset": 39,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 5
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg1-reset",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter EG1 reset",
+      "offset": 39,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 4
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.trigger-mode",
+      "group": "Timbre1",
+      "label": "Timbre 1 trigger mode",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Single",
+          "Multi"
+        ],
+        "bits": {
+          "offsetBit": 3,
+          "widthBits": 1
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.key-priority",
+      "group": "Timbre1",
+      "label": "Timbre 1 key priority",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Last",
+          "Low",
+          "High"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl only \u2014 edisyn doesn't read/write this field. erl: 0=last."
+    },
+    {
+      "id": "timbre1.unison-detune",
+      "group": "Timbre1",
+      "label": "Timbre 1 unison detune (cents)",
+      "offset": 40,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 99
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.tune",
+      "group": "Timbre1.Pitch",
+      "label": "Timbre 1 master tune (cents)",
+      "offset": 41,
+      "kind": {
+        "type": "s8",
+        "min": -50,
+        "max": 50
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.bend-range",
+      "group": "Timbre1.Pitch",
+      "label": "Timbre 1 pitch bend range (semitones)",
+      "offset": 42,
+      "kind": {
+        "type": "s8",
+        "min": -12,
+        "max": 12
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.transpose",
+      "group": "Timbre1.Pitch",
+      "label": "Timbre 1 transpose (semitones)",
+      "offset": 43,
+      "kind": {
+        "type": "s8",
+        "min": -24,
+        "max": 24
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.vibrato-int",
+      "group": "Timbre1.Pitch",
+      "label": "Timbre 1 vibrato intensity",
+      "offset": 44,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.osc1-wave",
+      "group": "Timbre1.OSC1",
+      "label": "Timbre 1 OSC1 waveform",
+      "offset": 45,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Pulse",
+          "Triangle",
+          "Sine (Cross)",
+          "Vox Wave",
+          "DWGS",
+          "Noise",
+          "Audio In"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc1-ctrl1",
+      "group": "Timbre1.OSC1",
+      "label": "Timbre 1 OSC1 control 1 (PW etc.)",
+      "offset": 46,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc1-ctrl2",
+      "group": "Timbre1.OSC1",
+      "label": "Timbre 1 OSC1 control 2 (LFO/PWM mod)",
+      "offset": 47,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc1-dwgs",
+      "group": "Timbre1.OSC1",
+      "label": "Timbre 1 OSC1 DWGS waveform",
+      "offset": 48,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. erl: dwgs = stored+1 (1-64)."
+    },
+    {
+      "id": "timbre1.osc2-modselect",
+      "group": "Timbre1.OSC2",
+      "label": "Timbre 1 OSC2 mod select",
+      "offset": 50,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Ring",
+          "Sync",
+          "Ring+Sync"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc2-wave",
+      "group": "Timbre1.OSC2",
+      "label": "Timbre 1 OSC2 waveform",
+      "offset": 50,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Triangle"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc2-semitone",
+      "group": "Timbre1.OSC2",
+      "label": "Timbre 1 OSC2 semitone",
+      "offset": 51,
+      "kind": {
+        "type": "s8",
+        "min": -24,
+        "max": 24
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.osc2-tune",
+      "group": "Timbre1.OSC2",
+      "label": "Timbre 1 OSC2 tune",
+      "offset": 52,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.portamento-time",
+      "group": "Timbre1.Pitch",
+      "label": "Timbre 1 portamento time",
+      "offset": 53,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 0,
+        "widthBits": 7
+      },
+      "notes": "erl + edisyn agree. Bit 7 reserved 0."
+    },
+    {
+      "id": "timbre1.mixer-osc1-level",
+      "group": "Timbre1.Mixer",
+      "label": "Timbre 1 mixer OSC1 level",
+      "offset": 54,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.mixer-osc2-level",
+      "group": "Timbre1.Mixer",
+      "label": "Timbre 1 mixer OSC2 level",
+      "offset": 55,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.mixer-noise",
+      "group": "Timbre1.Mixer",
+      "label": "Timbre 1 mixer noise level",
+      "offset": 56,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.filter-type",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter type",
+      "offset": 57,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "24 LPF",
+          "12 LPF",
+          "12 BPF",
+          "12 HPF"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.filter-cutoff",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter cutoff",
+      "offset": 58,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.filter-resonance",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter resonance",
+      "offset": 59,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.filter-eg1-intensity",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter EG1 intensity",
+      "offset": 60,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.filter-vel-sens",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter velocity sense",
+      "offset": 61,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl only \u2014 edisyn writes constant 64 (0). erl: Raw = value+64."
+    },
+    {
+      "id": "timbre1.filter-keytrack",
+      "group": "Timbre1.Filter",
+      "label": "Timbre 1 filter keyboard track",
+      "offset": 62,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.amp-level",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp level",
+      "offset": 63,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.amp-pan",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp pan",
+      "offset": 64,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.amp-sw",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp switch (EG2-controlled)",
+      "offset": 65,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 6
+      },
+      "notes": "erl only \u2014 edisyn doesn't expose this bit. erl: bit 6 of byte amp+2."
+    },
+    {
+      "id": "timbre1.amp-distortion",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp distortion",
+      "offset": 65,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 0
+      },
+      "notes": "erl + edisyn agree (bit 0)"
+    },
+    {
+      "id": "timbre1.amp-vel-sens",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp velocity sense",
+      "offset": 66,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl only \u2014 edisyn writes constant 64 (0). Raw = value+64."
+    },
+    {
+      "id": "timbre1.amp-keytrack",
+      "group": "Timbre1.Amp",
+      "label": "Timbre 1 amp keyboard track",
+      "offset": 67,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.eg1-attack",
+      "group": "Timbre1.EG1",
+      "label": "Timbre 1 EG1 attack",
+      "offset": 68,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg1-decay",
+      "group": "Timbre1.EG1",
+      "label": "Timbre 1 EG1 decay",
+      "offset": 69,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg1-sustain",
+      "group": "Timbre1.EG1",
+      "label": "Timbre 1 EG1 sustain",
+      "offset": 70,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg1-release",
+      "group": "Timbre1.EG1",
+      "label": "Timbre 1 EG1 release",
+      "offset": 71,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg2-attack",
+      "group": "Timbre1.EG2",
+      "label": "Timbre 1 EG2 attack",
+      "offset": 72,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg2-decay",
+      "group": "Timbre1.EG2",
+      "label": "Timbre 1 EG2 decay",
+      "offset": 73,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg2-sustain",
+      "group": "Timbre1.EG2",
+      "label": "Timbre 1 EG2 sustain",
+      "offset": 74,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.eg2-release",
+      "group": "Timbre1.EG2",
+      "label": "Timbre 1 EG2 release",
+      "offset": 75,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo1-keysync",
+      "group": "Timbre1.LFO1",
+      "label": "Timbre 1 LFO1 key sync",
+      "offset": 76,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo1-wave",
+      "group": "Timbre1.LFO1",
+      "label": "Timbre 1 LFO1 waveform",
+      "offset": 76,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Triangle",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree. LFO1's third value is Triangle (LFO2's is Sine)."
+    },
+    {
+      "id": "timbre1.lfo1-frequency",
+      "group": "Timbre1.LFO1",
+      "label": "Timbre 1 LFO1 frequency",
+      "offset": 77,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo1-temposync",
+      "group": "Timbre1.LFO1",
+      "label": "Timbre 1 LFO1 tempo sync",
+      "offset": 78,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo1-syncnote",
+      "group": "Timbre1.LFO1",
+      "label": "Timbre 1 LFO1 sync note",
+      "offset": 78,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl uses 5-bit width, edisyn comments doc says bits 0-4 but mask 0xF; both consistent since only 15 values exist."
+    },
+    {
+      "id": "timbre1.lfo2-keysync",
+      "group": "Timbre1.LFO2",
+      "label": "Timbre 1 LFO2 key sync",
+      "offset": 79,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo2-wave",
+      "group": "Timbre1.LFO2",
+      "label": "Timbre 1 LFO2 waveform",
+      "offset": 79,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Sine",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree. LFO2's third value is Sine (vs Triangle on LFO1)."
+    },
+    {
+      "id": "timbre1.lfo2-frequency",
+      "group": "Timbre1.LFO2",
+      "label": "Timbre 1 LFO2 frequency",
+      "offset": 80,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo2-temposync",
+      "group": "Timbre1.LFO2",
+      "label": "Timbre 1 LFO2 tempo sync",
+      "offset": 81,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.lfo2-syncnote",
+      "group": "Timbre1.LFO2",
+      "label": "Timbre 1 LFO2 sync note",
+      "offset": 81,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchA-dest",
+      "group": "Timbre1.PatchA",
+      "label": "Timbre 1 patch 1 destination",
+      "offset": 82,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree (only 0-7 used; edisyn comments doc disagrees but the 3-bit values fit)"
+    },
+    {
+      "id": "timbre1.patchA-source",
+      "group": "Timbre1.PatchA",
+      "label": "Timbre 1 patch 1 source",
+      "offset": 82,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchA-intensity",
+      "group": "Timbre1.PatchA",
+      "label": "Timbre 1 patch 1 intensity",
+      "offset": 83,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.patchB-dest",
+      "group": "Timbre1.PatchB",
+      "label": "Timbre 1 patch 2 destination",
+      "offset": 84,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchB-source",
+      "group": "Timbre1.PatchB",
+      "label": "Timbre 1 patch 2 source",
+      "offset": 84,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchB-intensity",
+      "group": "Timbre1.PatchB",
+      "label": "Timbre 1 patch 2 intensity",
+      "offset": 85,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.patchC-dest",
+      "group": "Timbre1.PatchC",
+      "label": "Timbre 1 patch 3 destination",
+      "offset": 86,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchC-source",
+      "group": "Timbre1.PatchC",
+      "label": "Timbre 1 patch 3 source",
+      "offset": 86,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchC-intensity",
+      "group": "Timbre1.PatchC",
+      "label": "Timbre 1 patch 3 intensity",
+      "offset": 87,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre1.patchD-dest",
+      "group": "Timbre1.PatchD",
+      "label": "Timbre 1 patch 4 destination",
+      "offset": 88,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchD-source",
+      "group": "Timbre1.PatchD",
+      "label": "Timbre 1 patch 4 source",
+      "offset": 88,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.patchD-intensity",
+      "group": "Timbre1.PatchD",
+      "label": "Timbre 1 patch 4 intensity",
+      "offset": 89,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.midi-ch",
+      "group": "Timbre2",
+      "label": "Timbre 2 MIDI channel",
+      "offset": 146,
+      "kind": {
+        "type": "s8",
+        "min": -1,
+        "max": 15
+      },
+      "notes": "erl + edisyn agree. Timbre 2 starts at offset 38+108=146. -1=global. Only used in Layer mode."
+    },
+    {
+      "id": "timbre2.assign-mode",
+      "group": "Timbre2",
+      "label": "Timbre 2 voice assign mode",
+      "offset": 147,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Mono",
+          "Poly",
+          "Unison"
+        ],
+        "bits": {
+          "offsetBit": 6,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg2-reset",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp EG2 reset",
+      "offset": 147,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 5
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg1-reset",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter EG1 reset",
+      "offset": 147,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 4
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.trigger-mode",
+      "group": "Timbre2",
+      "label": "Timbre 2 trigger mode",
+      "offset": 147,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Single",
+          "Multi"
+        ],
+        "bits": {
+          "offsetBit": 3,
+          "widthBits": 1
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.key-priority",
+      "group": "Timbre2",
+      "label": "Timbre 2 key priority",
+      "offset": 147,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Last",
+          "Low",
+          "High"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl only \u2014 edisyn doesn't expose this field."
+    },
+    {
+      "id": "timbre2.unison-detune",
+      "group": "Timbre2",
+      "label": "Timbre 2 unison detune (cents)",
+      "offset": 148,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 99
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.tune",
+      "group": "Timbre2.Pitch",
+      "label": "Timbre 2 master tune (cents)",
+      "offset": 149,
+      "kind": {
+        "type": "s8",
+        "min": -50,
+        "max": 50
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.bend-range",
+      "group": "Timbre2.Pitch",
+      "label": "Timbre 2 pitch bend range",
+      "offset": 150,
+      "kind": {
+        "type": "s8",
+        "min": -12,
+        "max": 12
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.transpose",
+      "group": "Timbre2.Pitch",
+      "label": "Timbre 2 transpose",
+      "offset": 151,
+      "kind": {
+        "type": "s8",
+        "min": -24,
+        "max": 24
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.vibrato-int",
+      "group": "Timbre2.Pitch",
+      "label": "Timbre 2 vibrato intensity",
+      "offset": 152,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.osc1-wave",
+      "group": "Timbre2.OSC1",
+      "label": "Timbre 2 OSC1 waveform",
+      "offset": 153,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Pulse",
+          "Triangle",
+          "Sine (Cross)",
+          "Vox Wave",
+          "DWGS",
+          "Noise",
+          "Audio In"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc1-ctrl1",
+      "group": "Timbre2.OSC1",
+      "label": "Timbre 2 OSC1 control 1",
+      "offset": 154,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc1-ctrl2",
+      "group": "Timbre2.OSC1",
+      "label": "Timbre 2 OSC1 control 2",
+      "offset": 155,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc1-dwgs",
+      "group": "Timbre2.OSC1",
+      "label": "Timbre 2 OSC1 DWGS waveform",
+      "offset": 156,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc2-modselect",
+      "group": "Timbre2.OSC2",
+      "label": "Timbre 2 OSC2 mod select",
+      "offset": 158,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Ring",
+          "Sync",
+          "Ring+Sync"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc2-wave",
+      "group": "Timbre2.OSC2",
+      "label": "Timbre 2 OSC2 waveform",
+      "offset": 158,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Triangle"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.osc2-semitone",
+      "group": "Timbre2.OSC2",
+      "label": "Timbre 2 OSC2 semitone",
+      "offset": 159,
+      "kind": {
+        "type": "s8",
+        "min": -24,
+        "max": 24
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.osc2-tune",
+      "group": "Timbre2.OSC2",
+      "label": "Timbre 2 OSC2 tune",
+      "offset": 160,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "timbre2.portamento-time",
+      "group": "Timbre2.Pitch",
+      "label": "Timbre 2 portamento time",
+      "offset": 161,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 0,
+        "widthBits": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.mixer-osc1-level",
+      "group": "Timbre2.Mixer",
+      "label": "Timbre 2 mixer OSC1 level",
+      "offset": 162,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.mixer-osc2-level",
+      "group": "Timbre2.Mixer",
+      "label": "Timbre 2 mixer OSC2 level",
+      "offset": 163,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.mixer-noise",
+      "group": "Timbre2.Mixer",
+      "label": "Timbre 2 mixer noise level",
+      "offset": 164,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.filter-type",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter type",
+      "offset": 165,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "24 LPF",
+          "12 LPF",
+          "12 BPF",
+          "12 HPF"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.filter-cutoff",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter cutoff",
+      "offset": 166,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.filter-resonance",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter resonance",
+      "offset": 167,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.filter-eg1-intensity",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter EG1 intensity",
+      "offset": 168,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.filter-vel-sens",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter velocity sense",
+      "offset": 169,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl only \u2014 edisyn writes constant 64."
+    },
+    {
+      "id": "timbre2.filter-keytrack",
+      "group": "Timbre2.Filter",
+      "label": "Timbre 2 filter keyboard track",
+      "offset": 170,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.amp-level",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp level",
+      "offset": 171,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.amp-pan",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp pan",
+      "offset": 172,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.amp-sw",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp switch",
+      "offset": 173,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 6
+      },
+      "notes": "erl only"
+    },
+    {
+      "id": "timbre2.amp-distortion",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp distortion",
+      "offset": 173,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 0
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.amp-vel-sens",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp velocity sense",
+      "offset": 174,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl only \u2014 edisyn writes constant 64."
+    },
+    {
+      "id": "timbre2.amp-keytrack",
+      "group": "Timbre2.Amp",
+      "label": "Timbre 2 amp keyboard track",
+      "offset": 175,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg1-attack",
+      "group": "Timbre2.EG1",
+      "label": "Timbre 2 EG1 attack",
+      "offset": 176,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg1-decay",
+      "group": "Timbre2.EG1",
+      "label": "Timbre 2 EG1 decay",
+      "offset": 177,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg1-sustain",
+      "group": "Timbre2.EG1",
+      "label": "Timbre 2 EG1 sustain",
+      "offset": 178,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg1-release",
+      "group": "Timbre2.EG1",
+      "label": "Timbre 2 EG1 release",
+      "offset": 179,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg2-attack",
+      "group": "Timbre2.EG2",
+      "label": "Timbre 2 EG2 attack",
+      "offset": 180,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg2-decay",
+      "group": "Timbre2.EG2",
+      "label": "Timbre 2 EG2 decay",
+      "offset": 181,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg2-sustain",
+      "group": "Timbre2.EG2",
+      "label": "Timbre 2 EG2 sustain",
+      "offset": 182,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.eg2-release",
+      "group": "Timbre2.EG2",
+      "label": "Timbre 2 EG2 release",
+      "offset": 183,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo1-keysync",
+      "group": "Timbre2.LFO1",
+      "label": "Timbre 2 LFO1 key sync",
+      "offset": 184,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo1-wave",
+      "group": "Timbre2.LFO1",
+      "label": "Timbre 2 LFO1 waveform",
+      "offset": 184,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Triangle",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo1-frequency",
+      "group": "Timbre2.LFO1",
+      "label": "Timbre 2 LFO1 frequency",
+      "offset": 185,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo1-temposync",
+      "group": "Timbre2.LFO1",
+      "label": "Timbre 2 LFO1 tempo sync",
+      "offset": 186,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo1-syncnote",
+      "group": "Timbre2.LFO1",
+      "label": "Timbre 2 LFO1 sync note",
+      "offset": 186,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo2-keysync",
+      "group": "Timbre2.LFO2",
+      "label": "Timbre 2 LFO2 key sync",
+      "offset": 187,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo2-wave",
+      "group": "Timbre2.LFO2",
+      "label": "Timbre 2 LFO2 waveform",
+      "offset": 187,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Sine",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo2-frequency",
+      "group": "Timbre2.LFO2",
+      "label": "Timbre 2 LFO2 frequency",
+      "offset": 188,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo2-temposync",
+      "group": "Timbre2.LFO2",
+      "label": "Timbre 2 LFO2 tempo sync",
+      "offset": 189,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.lfo2-syncnote",
+      "group": "Timbre2.LFO2",
+      "label": "Timbre 2 LFO2 sync note",
+      "offset": 189,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchA-dest",
+      "group": "Timbre2.PatchA",
+      "label": "Timbre 2 patch 1 destination",
+      "offset": 190,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchA-source",
+      "group": "Timbre2.PatchA",
+      "label": "Timbre 2 patch 1 source",
+      "offset": 190,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchA-intensity",
+      "group": "Timbre2.PatchA",
+      "label": "Timbre 2 patch 1 intensity",
+      "offset": 191,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchB-dest",
+      "group": "Timbre2.PatchB",
+      "label": "Timbre 2 patch 2 destination",
+      "offset": 192,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchB-source",
+      "group": "Timbre2.PatchB",
+      "label": "Timbre 2 patch 2 source",
+      "offset": 192,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchB-intensity",
+      "group": "Timbre2.PatchB",
+      "label": "Timbre 2 patch 2 intensity",
+      "offset": 193,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchC-dest",
+      "group": "Timbre2.PatchC",
+      "label": "Timbre 2 patch 3 destination",
+      "offset": 194,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchC-source",
+      "group": "Timbre2.PatchC",
+      "label": "Timbre 2 patch 3 source",
+      "offset": 194,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchC-intensity",
+      "group": "Timbre2.PatchC",
+      "label": "Timbre 2 patch 3 intensity",
+      "offset": 195,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchD-dest",
+      "group": "Timbre2.PatchD",
+      "label": "Timbre 2 patch 4 destination",
+      "offset": 196,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Pitch",
+          "OSC2 Pitch",
+          "OSC1 Ctrl1",
+          "Noise",
+          "Cutoff",
+          "Amp",
+          "Pan",
+          "LFO2 Freq"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchD-source",
+      "group": "Timbre2.PatchD",
+      "label": "Timbre 2 patch 4 source",
+      "offset": 196,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Filter EG (EG1)",
+          "Amp EG (EG2)",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 4
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre2.patchD-intensity",
+      "group": "Timbre2.PatchD",
+      "label": "Timbre 2 patch 4 intensity",
+      "offset": 197,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.midi-ch",
+      "group": "Vocoder.Common",
+      "label": "Vocoder MIDI channel",
+      "offset": 38,
+      "kind": {
+        "type": "s8",
+        "min": -1,
+        "max": 15
+      },
+      "notes": "Voice mode = Vocoder: 142-byte block replaces the 2 timbres starting at offset 38. -1=global. erl + edisyn agree."
+    },
+    {
+      "id": "vocoder.common.assign-mode",
+      "group": "Vocoder.Common",
+      "label": "Vocoder voice assign mode",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Mono",
+          "Poly",
+          "Unison"
+        ],
+        "bits": {
+          "offsetBit": 6,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.eg2-reset",
+      "group": "Vocoder.Common",
+      "label": "Vocoder amp EG2 reset",
+      "offset": 39,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 5
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.eg1-reset",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter EG1 reset",
+      "offset": 39,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 4
+      },
+      "notes": "erl only \u2014 edisyn doesn't expose for vocoder."
+    },
+    {
+      "id": "vocoder.common.trigger-mode",
+      "group": "Vocoder.Common",
+      "label": "Vocoder trigger mode",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Single",
+          "Multi"
+        ],
+        "bits": {
+          "offsetBit": 3,
+          "widthBits": 1
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.key-priority",
+      "group": "Vocoder.Common",
+      "label": "Vocoder key priority",
+      "offset": 39,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Last",
+          "Low",
+          "High"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl only"
+    },
+    {
+      "id": "vocoder.common.unison-detune",
+      "group": "Vocoder.Common",
+      "label": "Vocoder unison detune",
+      "offset": 40,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 99
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.tune",
+      "group": "Vocoder.Common",
+      "label": "Vocoder master tune",
+      "offset": 41,
+      "kind": {
+        "type": "s8",
+        "min": -50,
+        "max": 50
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "vocoder.common.bend-range",
+      "group": "Vocoder.Common",
+      "label": "Vocoder pitch bend range",
+      "offset": 42,
+      "kind": {
+        "type": "s8",
+        "min": -12,
+        "max": 12
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.transpose",
+      "group": "Vocoder.Common",
+      "label": "Vocoder transpose",
+      "offset": 43,
+      "kind": {
+        "type": "s8",
+        "min": -24,
+        "max": 24
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.common.vibrato-int",
+      "group": "Vocoder.Common",
+      "label": "Vocoder vibrato intensity",
+      "offset": 44,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.osc.wave",
+      "group": "Vocoder.Common",
+      "label": "Vocoder carrier OSC1 waveform",
+      "offset": 45,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Pulse",
+          "Triangle",
+          "Sine (Cross)",
+          "Vox Wave",
+          "DWGS",
+          "Noise",
+          "Audio In"
+        ]
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.osc.ctrl1",
+      "group": "Vocoder.Common",
+      "label": "Vocoder carrier OSC1 control 1",
+      "offset": 46,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.osc.ctrl2",
+      "group": "Vocoder.Common",
+      "label": "Vocoder carrier OSC1 control 2",
+      "offset": 47,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.osc.dwgs",
+      "group": "Vocoder.Common",
+      "label": "Vocoder carrier OSC1 DWGS waveform",
+      "offset": 48,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.audioin1.hpf-gate",
+      "group": "Vocoder.Common",
+      "label": "Audio In 1 HPF gate",
+      "offset": 50,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 0
+      },
+      "notes": "erl + edisyn agree (bit 0 of byte at offset 50)"
+    },
+    {
+      "id": "vocoder.common.portamento-time",
+      "group": "Vocoder.Common",
+      "label": "Vocoder portamento time",
+      "offset": 52,
+      "kind": {
+        "type": "bits",
+        "offsetBit": 0,
+        "widthBits": 7
+      },
+      "notes": "erl + edisyn agree. erl decodes at byte (38+14)=52; edisyn at (38+14)=52."
+    },
+    {
+      "id": "vocoder.mixer.osc1-level",
+      "group": "Vocoder.Common",
+      "label": "Vocoder mixer OSC1 level",
+      "offset": 53,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.mixer.ext1-level",
+      "group": "Vocoder.Common",
+      "label": "Vocoder mixer external 1 level",
+      "offset": 54,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl: ext1_lvl (Mixer field 2). edisyn: 'osc2level' but writes same offset. erl + edisyn agree on offset."
+    },
+    {
+      "id": "vocoder.mixer.noise",
+      "group": "Vocoder.Common",
+      "label": "Vocoder mixer noise",
+      "offset": 55,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.audioin1.hpf-level",
+      "group": "Vocoder.Common",
+      "label": "Audio In 1 HPF level",
+      "offset": 56,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (edisyn calls this 'osc2hpflevel')"
+    },
+    {
+      "id": "vocoder.audioin1.gate-sense",
+      "group": "Vocoder.Common",
+      "label": "Audio In 1 gate sense",
+      "offset": 57,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.audioin1.threshold",
+      "group": "Vocoder.Common",
+      "label": "Audio In 1 threshold",
+      "offset": 58,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.filter.shift",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter formant shift",
+      "offset": 59,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "0",
+          "+1",
+          "+2",
+          "-1",
+          "-2"
+        ]
+      },
+      "notes": "erl + edisyn agree. erl remaps: 0=0,1=+1,2=+2,3=-1,4=-2."
+    },
+    {
+      "id": "vocoder.filter.cutoff",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter cutoff",
+      "offset": 60,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "vocoder.filter.resonance",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter resonance",
+      "offset": 61,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.filter.modsource",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter mod source",
+      "offset": 62,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off/Reserved(0)",
+          "AEG",
+          "LFO1",
+          "LFO2",
+          "Velocity",
+          "Keyboard Track",
+          "Pitch Bend",
+          "Mod Wheel"
+        ]
+      },
+      "notes": "erl: 1-7 mapped (no 0); edisyn array has 'Off' at index 0. erl + edisyn agree on offset."
+    },
+    {
+      "id": "vocoder.filter.intensity",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter mod intensity",
+      "offset": 63,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Raw = value+64."
+    },
+    {
+      "id": "vocoder.filter.efsense",
+      "group": "Vocoder.Common",
+      "label": "Vocoder filter EF sense",
+      "offset": 64,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree. erl: 127 = 'hold'."
+    },
+    {
+      "id": "vocoder.amp.level",
+      "group": "Vocoder.Common",
+      "label": "Vocoder amp level",
+      "offset": 65,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.amp.direct-level",
+      "group": "Vocoder.Common",
+      "label": "Vocoder direct level",
+      "offset": 66,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.amp.distortion",
+      "group": "Vocoder.Common",
+      "label": "Vocoder amp distortion",
+      "offset": 67,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 0
+      },
+      "notes": "erl + edisyn agree (bit 0)"
+    },
+    {
+      "id": "vocoder.amp.vel-sens",
+      "group": "Vocoder.Common",
+      "label": "Vocoder amp velocity sense",
+      "offset": 68,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl only \u2014 edisyn writes constant 64."
+    },
+    {
+      "id": "vocoder.amp.keytrack",
+      "group": "Vocoder.Common",
+      "label": "Vocoder amp keyboard track",
+      "offset": 69,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.eg1.sustain",
+      "group": "Vocoder.Common",
+      "label": "Vocoder EG1 (filter) sustain",
+      "offset": 72,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "edisyn only \u2014 erl writes zeros across EG1 block for vocoder. Edisyn parses this single byte."
+    },
+    {
+      "id": "vocoder.eg2.attack",
+      "group": "Vocoder.Common",
+      "label": "Vocoder EG2 (amp) attack",
+      "offset": 74,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.eg2.decay",
+      "group": "Vocoder.Common",
+      "label": "Vocoder EG2 decay",
+      "offset": 75,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.eg2.sustain",
+      "group": "Vocoder.Common",
+      "label": "Vocoder EG2 sustain",
+      "offset": 76,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.eg2.release",
+      "group": "Vocoder.Common",
+      "label": "Vocoder EG2 release",
+      "offset": 77,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo1.keysync",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO1 key sync",
+      "offset": 78,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo1.wave",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO1 waveform",
+      "offset": 78,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Triangle",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo1.frequency",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO1 frequency",
+      "offset": 79,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo1.temposync",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO1 tempo sync",
+      "offset": 80,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo1.syncnote",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO1 sync note",
+      "offset": 80,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo2.keysync",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO2 key sync",
+      "offset": 81,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Off",
+          "Timbre",
+          "Voice"
+        ],
+        "bits": {
+          "offsetBit": 4,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo2.wave",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO2 waveform",
+      "offset": 81,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "Sawtooth",
+          "Square",
+          "Sine",
+          "S&H"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 2
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo2.frequency",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO2 frequency",
+      "offset": 82,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo2.temposync",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO2 tempo sync",
+      "offset": 83,
+      "kind": {
+        "type": "boolean",
+        "offsetBit": 7
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.lfo2.syncnote",
+      "group": "Vocoder.Common",
+      "label": "Vocoder LFO2 sync note",
+      "offset": 83,
+      "kind": {
+        "type": "enum",
+        "values": [
+          "1/1",
+          "3/4",
+          "2/3",
+          "1/2",
+          "3/8",
+          "1/3",
+          "1/4",
+          "3/16",
+          "1/6",
+          "1/8",
+          "3/32",
+          "1/12",
+          "1/16",
+          "1/24",
+          "1/32"
+        ],
+        "bits": {
+          "offsetBit": 0,
+          "widthBits": 5
+        }
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch1.level",
+      "group": "Vocoder.Channel1",
+      "label": "Vocoder channel 1 level",
+      "offset": 84,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree. Note: edisyn writes pair (offset+46, offset+47) = same byte; only 8 channels stored. Bytes 84-99 = 8 pairs."
+    },
+    {
+      "id": "vocoder.ch2.level",
+      "group": "Vocoder.Channel2",
+      "label": "Vocoder channel 2 level",
+      "offset": 86,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 86=87)"
+    },
+    {
+      "id": "vocoder.ch3.level",
+      "group": "Vocoder.Channel3",
+      "label": "Vocoder channel 3 level",
+      "offset": 88,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 88=89)"
+    },
+    {
+      "id": "vocoder.ch4.level",
+      "group": "Vocoder.Channel4",
+      "label": "Vocoder channel 4 level",
+      "offset": 90,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 90=91)"
+    },
+    {
+      "id": "vocoder.ch5.level",
+      "group": "Vocoder.Channel5",
+      "label": "Vocoder channel 5 level",
+      "offset": 92,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 92=93)"
+    },
+    {
+      "id": "vocoder.ch6.level",
+      "group": "Vocoder.Channel6",
+      "label": "Vocoder channel 6 level",
+      "offset": 94,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 94=95)"
+    },
+    {
+      "id": "vocoder.ch7.level",
+      "group": "Vocoder.Channel7",
+      "label": "Vocoder channel 7 level",
+      "offset": 96,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 96=97)"
+    },
+    {
+      "id": "vocoder.ch8.level",
+      "group": "Vocoder.Channel8",
+      "label": "Vocoder channel 8 level",
+      "offset": 98,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "erl + edisyn agree (pair byte 98=99)"
+    },
+    {
+      "id": "vocoder.ch1.pan",
+      "group": "Vocoder.Channel1",
+      "label": "Vocoder channel 1 pan",
+      "offset": 100,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree. Pan bytes 100-115 = 8 pairs of pan (raw=val+64)."
+    },
+    {
+      "id": "vocoder.ch2.pan",
+      "group": "Vocoder.Channel2",
+      "label": "Vocoder channel 2 pan",
+      "offset": 102,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 102=103)"
+    },
+    {
+      "id": "vocoder.ch3.pan",
+      "group": "Vocoder.Channel3",
+      "label": "Vocoder channel 3 pan",
+      "offset": 104,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 104=105)"
+    },
+    {
+      "id": "vocoder.ch4.pan",
+      "group": "Vocoder.Channel4",
+      "label": "Vocoder channel 4 pan",
+      "offset": 106,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 106=107)"
+    },
+    {
+      "id": "vocoder.ch5.pan",
+      "group": "Vocoder.Channel5",
+      "label": "Vocoder channel 5 pan",
+      "offset": 108,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 108=109)"
+    },
+    {
+      "id": "vocoder.ch6.pan",
+      "group": "Vocoder.Channel6",
+      "label": "Vocoder channel 6 pan",
+      "offset": 110,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 110=111)"
+    },
+    {
+      "id": "vocoder.ch7.pan",
+      "group": "Vocoder.Channel7",
+      "label": "Vocoder channel 7 pan",
+      "offset": 112,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 112=113)"
+    },
+    {
+      "id": "vocoder.ch8.pan",
+      "group": "Vocoder.Channel8",
+      "label": "Vocoder channel 8 pan",
+      "offset": 114,
+      "kind": {
+        "type": "s8",
+        "min": -63,
+        "max": 63
+      },
+      "notes": "erl + edisyn agree (pair byte 114=115)"
+    },
+    {
+      "id": "vocoder.ch1.hold",
+      "group": "Vocoder.Channel1",
+      "label": "Vocoder channel 1 hold level",
+      "offset": 116,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree. 16 channels \u00d7 4 bytes big-endian, starting at byte 38+78=116. Hold level for each band."
+    },
+    {
+      "id": "vocoder.ch2.hold",
+      "group": "Vocoder.Channel2",
+      "label": "Vocoder channel 2 hold level",
+      "offset": 120,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch3.hold",
+      "group": "Vocoder.Channel3",
+      "label": "Vocoder channel 3 hold level",
+      "offset": 124,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch4.hold",
+      "group": "Vocoder.Channel4",
+      "label": "Vocoder channel 4 hold level",
+      "offset": 128,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch5.hold",
+      "group": "Vocoder.Channel5",
+      "label": "Vocoder channel 5 hold level",
+      "offset": 132,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch6.hold",
+      "group": "Vocoder.Channel6",
+      "label": "Vocoder channel 6 hold level",
+      "offset": 136,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch7.hold",
+      "group": "Vocoder.Channel7",
+      "label": "Vocoder channel 7 hold level",
+      "offset": 140,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch8.hold",
+      "group": "Vocoder.Channel8",
+      "label": "Vocoder channel 8 hold level",
+      "offset": 144,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch9.hold",
+      "group": "Vocoder.Channel9",
+      "label": "Vocoder channel 9 hold level",
+      "offset": 148,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch10.hold",
+      "group": "Vocoder.Channel10",
+      "label": "Vocoder channel 10 hold level",
+      "offset": 152,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch11.hold",
+      "group": "Vocoder.Channel11",
+      "label": "Vocoder channel 11 hold level",
+      "offset": 156,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch12.hold",
+      "group": "Vocoder.Channel12",
+      "label": "Vocoder channel 12 hold level",
+      "offset": 160,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch13.hold",
+      "group": "Vocoder.Channel13",
+      "label": "Vocoder channel 13 hold level",
+      "offset": 164,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch14.hold",
+      "group": "Vocoder.Channel14",
+      "label": "Vocoder channel 14 hold level",
+      "offset": 168,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch15.hold",
+      "group": "Vocoder.Channel15",
+      "label": "Vocoder channel 15 hold level",
+      "offset": 172,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "vocoder.ch16.hold",
+      "group": "Vocoder.Channel16",
+      "label": "Vocoder channel 16 hold level",
+      "offset": 176,
+      "kind": {
+        "type": "u32-be",
+        "min": 0,
+        "max": 4294967295
+      },
+      "notes": "erl + edisyn agree"
+    },
+    {
+      "id": "timbre1.osc1.pad",
+      "group": "Reserved",
+      "label": "Timbre 1 OSC1 pad byte",
+      "offset": 49,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl (osc1 trailing _:8) + edisyn (data[offset+11] = 0); preserve original value"
+    },
+    {
+      "id": "vocoder.ch4.levelHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch4 Level (paired high byte)",
+      "offset": 91,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 90. mirror on write."
+    },
+    {
+      "id": "vocoder.ch5.levelHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch5 Level (paired high byte)",
+      "offset": 93,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 92. mirror on write."
+    },
+    {
+      "id": "vocoder.ch6.levelHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch6 Level (paired high byte)",
+      "offset": 95,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 94. mirror on write."
+    },
+    {
+      "id": "vocoder.ch7.levelHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch7 Level (paired high byte)",
+      "offset": 97,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 96. mirror on write."
+    },
+    {
+      "id": "vocoder.ch8.levelHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch8 Level (paired high byte)",
+      "offset": 99,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 98. mirror on write."
+    },
+    {
+      "id": "vocoder.ch1.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch1 Pan (paired high byte)",
+      "offset": 101,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 100 per edisyn (warns if +62 != +63). mirror on write."
+    },
+    {
+      "id": "vocoder.ch2.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch2 Pan (paired high byte)",
+      "offset": 103,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 102. mirror on write."
+    },
+    {
+      "id": "vocoder.ch3.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch3 Pan (paired high byte)",
+      "offset": 105,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 104. mirror on write."
+    },
+    {
+      "id": "vocoder.ch4.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch4 Pan (paired high byte)",
+      "offset": 107,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 106. mirror on write."
+    },
+    {
+      "id": "vocoder.ch5.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch5 Pan (paired high byte)",
+      "offset": 109,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 108. mirror on write."
+    },
+    {
+      "id": "vocoder.ch6.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch6 Pan (paired high byte)",
+      "offset": 111,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 110. mirror on write."
+    },
+    {
+      "id": "vocoder.ch7.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch7 Pan (paired high byte)",
+      "offset": 113,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 112. mirror on write."
+    },
+    {
+      "id": "vocoder.ch8.panHigh",
+      "group": "Vocoder.Channels",
+      "label": "Vocoder Ch8 Pan (paired high byte)",
+      "offset": 115,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 127
+      },
+      "notes": "vocoder mode only. paired-duplicate of byte 114. mirror on write."
+    },
+    {
+      "id": "tail.reserved.198",
+      "group": "Reserved",
+      "label": "Reserved tail byte 198",
+      "offset": 198,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn. In single/double mode this is inside timbre2 trailing pad. In vocoder mode this falls inside the 74-byte trailing pad after the 142-byte vocoder block. Preserve original value."
+    },
+    {
+      "id": "tail.reserved.199",
+      "group": "Reserved",
+      "label": "Reserved tail byte 199",
+      "offset": 199,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.200",
+      "group": "Reserved",
+      "label": "Reserved tail byte 200",
+      "offset": 200,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.201",
+      "group": "Reserved",
+      "label": "Reserved tail byte 201",
+      "offset": 201,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.202",
+      "group": "Reserved",
+      "label": "Reserved tail byte 202",
+      "offset": 202,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.203",
+      "group": "Reserved",
+      "label": "Reserved tail byte 203",
+      "offset": 203,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.204",
+      "group": "Reserved",
+      "label": "Reserved tail byte 204",
+      "offset": 204,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.205",
+      "group": "Reserved",
+      "label": "Reserved tail byte 205",
+      "offset": 205,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.206",
+      "group": "Reserved",
+      "label": "Reserved tail byte 206",
+      "offset": 206,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.207",
+      "group": "Reserved",
+      "label": "Reserved tail byte 207",
+      "offset": 207,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.208",
+      "group": "Reserved",
+      "label": "Reserved tail byte 208",
+      "offset": 208,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.209",
+      "group": "Reserved",
+      "label": "Reserved tail byte 209",
+      "offset": 209,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.210",
+      "group": "Reserved",
+      "label": "Reserved tail byte 210",
+      "offset": 210,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.211",
+      "group": "Reserved",
+      "label": "Reserved tail byte 211",
+      "offset": 211,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.212",
+      "group": "Reserved",
+      "label": "Reserved tail byte 212",
+      "offset": 212,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.213",
+      "group": "Reserved",
+      "label": "Reserved tail byte 213",
+      "offset": 213,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.214",
+      "group": "Reserved",
+      "label": "Reserved tail byte 214",
+      "offset": 214,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.215",
+      "group": "Reserved",
+      "label": "Reserved tail byte 215",
+      "offset": 215,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.216",
+      "group": "Reserved",
+      "label": "Reserved tail byte 216",
+      "offset": 216,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.217",
+      "group": "Reserved",
+      "label": "Reserved tail byte 217",
+      "offset": 217,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.218",
+      "group": "Reserved",
+      "label": "Reserved tail byte 218",
+      "offset": 218,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.219",
+      "group": "Reserved",
+      "label": "Reserved tail byte 219",
+      "offset": 219,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.220",
+      "group": "Reserved",
+      "label": "Reserved tail byte 220",
+      "offset": 220,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.221",
+      "group": "Reserved",
+      "label": "Reserved tail byte 221",
+      "offset": 221,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.222",
+      "group": "Reserved",
+      "label": "Reserved tail byte 222",
+      "offset": 222,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.223",
+      "group": "Reserved",
+      "label": "Reserved tail byte 223",
+      "offset": 223,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.224",
+      "group": "Reserved",
+      "label": "Reserved tail byte 224",
+      "offset": 224,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.225",
+      "group": "Reserved",
+      "label": "Reserved tail byte 225",
+      "offset": 225,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.226",
+      "group": "Reserved",
+      "label": "Reserved tail byte 226",
+      "offset": 226,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.227",
+      "group": "Reserved",
+      "label": "Reserved tail byte 227",
+      "offset": 227,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.228",
+      "group": "Reserved",
+      "label": "Reserved tail byte 228",
+      "offset": 228,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.229",
+      "group": "Reserved",
+      "label": "Reserved tail byte 229",
+      "offset": 229,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.230",
+      "group": "Reserved",
+      "label": "Reserved tail byte 230",
+      "offset": 230,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.231",
+      "group": "Reserved",
+      "label": "Reserved tail byte 231",
+      "offset": 231,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.232",
+      "group": "Reserved",
+      "label": "Reserved tail byte 232",
+      "offset": 232,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.233",
+      "group": "Reserved",
+      "label": "Reserved tail byte 233",
+      "offset": 233,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.234",
+      "group": "Reserved",
+      "label": "Reserved tail byte 234",
+      "offset": 234,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.235",
+      "group": "Reserved",
+      "label": "Reserved tail byte 235",
+      "offset": 235,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.236",
+      "group": "Reserved",
+      "label": "Reserved tail byte 236",
+      "offset": 236,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.237",
+      "group": "Reserved",
+      "label": "Reserved tail byte 237",
+      "offset": 237,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.238",
+      "group": "Reserved",
+      "label": "Reserved tail byte 238",
+      "offset": 238,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.239",
+      "group": "Reserved",
+      "label": "Reserved tail byte 239",
+      "offset": 239,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.240",
+      "group": "Reserved",
+      "label": "Reserved tail byte 240",
+      "offset": 240,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.241",
+      "group": "Reserved",
+      "label": "Reserved tail byte 241",
+      "offset": 241,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.242",
+      "group": "Reserved",
+      "label": "Reserved tail byte 242",
+      "offset": 242,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.243",
+      "group": "Reserved",
+      "label": "Reserved tail byte 243",
+      "offset": 243,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.244",
+      "group": "Reserved",
+      "label": "Reserved tail byte 244",
+      "offset": 244,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.245",
+      "group": "Reserved",
+      "label": "Reserved tail byte 245",
+      "offset": 245,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.246",
+      "group": "Reserved",
+      "label": "Reserved tail byte 246",
+      "offset": 246,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.247",
+      "group": "Reserved",
+      "label": "Reserved tail byte 247",
+      "offset": 247,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.248",
+      "group": "Reserved",
+      "label": "Reserved tail byte 248",
+      "offset": 248,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.249",
+      "group": "Reserved",
+      "label": "Reserved tail byte 249",
+      "offset": 249,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.250",
+      "group": "Reserved",
+      "label": "Reserved tail byte 250",
+      "offset": 250,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.251",
+      "group": "Reserved",
+      "label": "Reserved tail byte 251",
+      "offset": 251,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.252",
+      "group": "Reserved",
+      "label": "Reserved tail byte 252",
+      "offset": 252,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    },
+    {
+      "id": "tail.reserved.253",
+      "group": "Reserved",
+      "label": "Reserved tail byte 253",
+      "offset": 253,
+      "kind": {
+        "type": "u8",
+        "min": 0,
+        "max": 255
+      },
+      "notes": "reserved per erl + edisyn; preserve original value"
+    }
+  ]
+}

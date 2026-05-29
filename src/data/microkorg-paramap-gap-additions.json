@@ -1,0 +1,594 @@
+[
+  {
+    "id": "timbre1.osc1.pad",
+    "group": "Reserved",
+    "label": "Timbre 1 OSC1 pad byte",
+    "offset": 49,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl (osc1 trailing _:8) + edisyn (data[offset+11] = 0); preserve original value"
+  },
+  {
+    "id": "timbre2.osc1.pad",
+    "group": "Reserved",
+    "label": "Timbre 2 OSC1 pad byte",
+    "offset": 157,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl (osc1 trailing _:8) + edisyn (data[offset+11] = 0) at timbre2 (49+108); preserve original value"
+  },
+  {
+    "id": "vocoder.ch1.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch1 Level (paired high byte)",
+    "offset": 85,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 84 per edisyn (KorgMicroKorgVocoder.java warns if data[+46] != data[+47]); Korg sysex doubles each channel level across 2 bytes. mirror byte 84 on write."
+  },
+  {
+    "id": "vocoder.ch2.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch2 Level (paired high byte)",
+    "offset": 87,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 86. mirror on write."
+  },
+  {
+    "id": "vocoder.ch3.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch3 Level (paired high byte)",
+    "offset": 89,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 88. mirror on write."
+  },
+  {
+    "id": "vocoder.ch4.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch4 Level (paired high byte)",
+    "offset": 91,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 90. mirror on write."
+  },
+  {
+    "id": "vocoder.ch5.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch5 Level (paired high byte)",
+    "offset": 93,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 92. mirror on write."
+  },
+  {
+    "id": "vocoder.ch6.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch6 Level (paired high byte)",
+    "offset": 95,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 94. mirror on write."
+  },
+  {
+    "id": "vocoder.ch7.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch7 Level (paired high byte)",
+    "offset": 97,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 96. mirror on write."
+  },
+  {
+    "id": "vocoder.ch8.levelHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch8 Level (paired high byte)",
+    "offset": 99,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 98. mirror on write."
+  },
+  {
+    "id": "vocoder.ch1.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch1 Pan (paired high byte)",
+    "offset": 101,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 100 per edisyn (warns if +62 != +63). mirror on write."
+  },
+  {
+    "id": "vocoder.ch2.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch2 Pan (paired high byte)",
+    "offset": 103,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 102. mirror on write."
+  },
+  {
+    "id": "vocoder.ch3.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch3 Pan (paired high byte)",
+    "offset": 105,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 104. mirror on write."
+  },
+  {
+    "id": "vocoder.ch4.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch4 Pan (paired high byte)",
+    "offset": 107,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 106. mirror on write."
+  },
+  {
+    "id": "vocoder.ch5.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch5 Pan (paired high byte)",
+    "offset": 109,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 108. mirror on write."
+  },
+  {
+    "id": "vocoder.ch6.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch6 Pan (paired high byte)",
+    "offset": 111,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 110. mirror on write."
+  },
+  {
+    "id": "vocoder.ch7.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch7 Pan (paired high byte)",
+    "offset": 113,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 112. mirror on write."
+  },
+  {
+    "id": "vocoder.ch8.panHigh",
+    "group": "Vocoder.Channels",
+    "label": "Vocoder Ch8 Pan (paired high byte)",
+    "offset": 115,
+    "kind": { "type": "u8", "min": 0, "max": 127 },
+    "notes": "vocoder mode only. paired-duplicate of byte 114. mirror on write."
+  },
+  {
+    "id": "tail.reserved.198",
+    "group": "Reserved",
+    "label": "Reserved tail byte 198",
+    "offset": 198,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn. In single/double mode this is inside timbre2 trailing pad. In vocoder mode this falls inside the 74-byte trailing pad after the 142-byte vocoder block. Preserve original value."
+  },
+  {
+    "id": "tail.reserved.199",
+    "group": "Reserved",
+    "label": "Reserved tail byte 199",
+    "offset": 199,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.200",
+    "group": "Reserved",
+    "label": "Reserved tail byte 200",
+    "offset": 200,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.201",
+    "group": "Reserved",
+    "label": "Reserved tail byte 201",
+    "offset": 201,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.202",
+    "group": "Reserved",
+    "label": "Reserved tail byte 202",
+    "offset": 202,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.203",
+    "group": "Reserved",
+    "label": "Reserved tail byte 203",
+    "offset": 203,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.204",
+    "group": "Reserved",
+    "label": "Reserved tail byte 204",
+    "offset": 204,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.205",
+    "group": "Reserved",
+    "label": "Reserved tail byte 205",
+    "offset": 205,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.206",
+    "group": "Reserved",
+    "label": "Reserved tail byte 206",
+    "offset": 206,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.207",
+    "group": "Reserved",
+    "label": "Reserved tail byte 207",
+    "offset": 207,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.208",
+    "group": "Reserved",
+    "label": "Reserved tail byte 208",
+    "offset": 208,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.209",
+    "group": "Reserved",
+    "label": "Reserved tail byte 209",
+    "offset": 209,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.210",
+    "group": "Reserved",
+    "label": "Reserved tail byte 210",
+    "offset": 210,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.211",
+    "group": "Reserved",
+    "label": "Reserved tail byte 211",
+    "offset": 211,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.212",
+    "group": "Reserved",
+    "label": "Reserved tail byte 212",
+    "offset": 212,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.213",
+    "group": "Reserved",
+    "label": "Reserved tail byte 213",
+    "offset": 213,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.214",
+    "group": "Reserved",
+    "label": "Reserved tail byte 214",
+    "offset": 214,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.215",
+    "group": "Reserved",
+    "label": "Reserved tail byte 215",
+    "offset": 215,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.216",
+    "group": "Reserved",
+    "label": "Reserved tail byte 216",
+    "offset": 216,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.217",
+    "group": "Reserved",
+    "label": "Reserved tail byte 217",
+    "offset": 217,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.218",
+    "group": "Reserved",
+    "label": "Reserved tail byte 218",
+    "offset": 218,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.219",
+    "group": "Reserved",
+    "label": "Reserved tail byte 219",
+    "offset": 219,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.220",
+    "group": "Reserved",
+    "label": "Reserved tail byte 220",
+    "offset": 220,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.221",
+    "group": "Reserved",
+    "label": "Reserved tail byte 221",
+    "offset": 221,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.222",
+    "group": "Reserved",
+    "label": "Reserved tail byte 222",
+    "offset": 222,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.223",
+    "group": "Reserved",
+    "label": "Reserved tail byte 223",
+    "offset": 223,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.224",
+    "group": "Reserved",
+    "label": "Reserved tail byte 224",
+    "offset": 224,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.225",
+    "group": "Reserved",
+    "label": "Reserved tail byte 225",
+    "offset": 225,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.226",
+    "group": "Reserved",
+    "label": "Reserved tail byte 226",
+    "offset": 226,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.227",
+    "group": "Reserved",
+    "label": "Reserved tail byte 227",
+    "offset": 227,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.228",
+    "group": "Reserved",
+    "label": "Reserved tail byte 228",
+    "offset": 228,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.229",
+    "group": "Reserved",
+    "label": "Reserved tail byte 229",
+    "offset": 229,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.230",
+    "group": "Reserved",
+    "label": "Reserved tail byte 230",
+    "offset": 230,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.231",
+    "group": "Reserved",
+    "label": "Reserved tail byte 231",
+    "offset": 231,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.232",
+    "group": "Reserved",
+    "label": "Reserved tail byte 232",
+    "offset": 232,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.233",
+    "group": "Reserved",
+    "label": "Reserved tail byte 233",
+    "offset": 233,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.234",
+    "group": "Reserved",
+    "label": "Reserved tail byte 234",
+    "offset": 234,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.235",
+    "group": "Reserved",
+    "label": "Reserved tail byte 235",
+    "offset": 235,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.236",
+    "group": "Reserved",
+    "label": "Reserved tail byte 236",
+    "offset": 236,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.237",
+    "group": "Reserved",
+    "label": "Reserved tail byte 237",
+    "offset": 237,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.238",
+    "group": "Reserved",
+    "label": "Reserved tail byte 238",
+    "offset": 238,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.239",
+    "group": "Reserved",
+    "label": "Reserved tail byte 239",
+    "offset": 239,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.240",
+    "group": "Reserved",
+    "label": "Reserved tail byte 240",
+    "offset": 240,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.241",
+    "group": "Reserved",
+    "label": "Reserved tail byte 241",
+    "offset": 241,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.242",
+    "group": "Reserved",
+    "label": "Reserved tail byte 242",
+    "offset": 242,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.243",
+    "group": "Reserved",
+    "label": "Reserved tail byte 243",
+    "offset": 243,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.244",
+    "group": "Reserved",
+    "label": "Reserved tail byte 244",
+    "offset": 244,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.245",
+    "group": "Reserved",
+    "label": "Reserved tail byte 245",
+    "offset": 245,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.246",
+    "group": "Reserved",
+    "label": "Reserved tail byte 246",
+    "offset": 246,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.247",
+    "group": "Reserved",
+    "label": "Reserved tail byte 247",
+    "offset": 247,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.248",
+    "group": "Reserved",
+    "label": "Reserved tail byte 248",
+    "offset": 248,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.249",
+    "group": "Reserved",
+    "label": "Reserved tail byte 249",
+    "offset": 249,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.250",
+    "group": "Reserved",
+    "label": "Reserved tail byte 250",
+    "offset": 250,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.251",
+    "group": "Reserved",
+    "label": "Reserved tail byte 251",
+    "offset": 251,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.252",
+    "group": "Reserved",
+    "label": "Reserved tail byte 252",
+    "offset": 252,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  },
+  {
+    "id": "tail.reserved.253",
+    "group": "Reserved",
+    "label": "Reserved tail byte 253",
+    "offset": 253,
+    "kind": { "type": "u8", "min": 0, "max": 255 },
+    "notes": "reserved per erl + edisyn; preserve original value"
+  }
+]
