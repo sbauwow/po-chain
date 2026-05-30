@@ -36,6 +36,7 @@ import {
   loadEpBackup,
 } from "@/lib/ep-backup";
 import { Waveform } from "./Waveform";
+import { PatternView } from "./PatternView";
 
 export default function EpToolClient() {
   const [ready, setReady] = useState(false);
@@ -521,9 +522,25 @@ export default function EpToolClient() {
             </details>
           )}
           <p className="text-[10px] text-zinc-500">
-            Import maps groups a/b/c/d → banks A/B/C/D, pads 1–12 → indices 0–11. Trim/volume/pitch/loop carry over; patterns/FX are read but not yet rendered.
+            Import maps groups a/b/c/d → banks A/B/C/D, pads 1–12 → indices 0–11. Trim/volume/pitch/loop carry over; FX is read but not yet rendered.
           </p>
         </section>
+      )}
+
+      {backup && backup.projects[backupProjIdx] && (
+        <PatternView
+          backup={backup}
+          project={backup.projects[backupProjIdx]}
+          onPatternsChange={(nextPatterns) => {
+            setBackup((prev) => {
+              if (!prev) return prev;
+              const projs = prev.projects.map((p, i) =>
+                i === backupProjIdx ? { ...p, patterns: nextPatterns } : p,
+              );
+              return { ...prev, projects: projs };
+            });
+          }}
+        />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
